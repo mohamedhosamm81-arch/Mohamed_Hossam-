@@ -84,10 +84,20 @@ export interface DemoLike {
   created_at: string;
 }
 
+export interface Conversation {
+  id: string;
+  participant_id: string;
+  participant_name: string;
+  participant_avatar: string;
+  last_message: string;
+  last_message_time: string;
+  unread_count: number;
+}
+
 export interface Notification {
   id: string;
   user_id: string;
-  type: 'exchange_request' | 'exchange_accepted' | 'exchange_declined' | 'review_received' | 'message' | 'milestone';
+  type: 'exchange_request' | 'exchange_accepted' | 'exchange_declined' | 'review_received' | 'message' | 'milestone' | 'job_posted' | 'job_completed';
   title: string;
   message: string;
   related_id?: string;
@@ -160,6 +170,27 @@ export interface UserActivityLog {
   created_at: string;
 }
 
+export interface Message {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface Job {
+  id: string;
+  title: string;
+  description: string;
+  posted_by: string;
+  skill_required: string;
+  budget?: number;
+  deadline?: string;
+  status: 'open' | 'in_progress' | 'completed';
+  created_at: string;
+}
+
 export interface DashboardStats {
   total_exchanges: number;
   pending_exchanges: number;
@@ -173,4 +204,15 @@ export interface DashboardStats {
   new_notifications: number;
 }
 
-export type Page = 'home' | 'browse' | 'profile';
+export interface AdminStats {
+  total_users: number;
+  total_exchanges: number;
+  total_revenue: number;
+  active_users_today: number;
+  new_users_this_week: number;
+  average_rating: number;
+  most_popular_skills: string[];
+  verified_users_count: number;
+}
+
+export type Page = 'home' | 'browse' | 'profile' | 'messages' | 'jobs';

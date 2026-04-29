@@ -5,6 +5,8 @@ import { Profile, Page } from '../../types';
 import ExpertCard from './ExpertCard';
 import ExchangeModal from '../exchange/ExchangeModal';
 import { useAuth } from '../../context/AuthContext';
+import SmartSearchBar from '../search/SmartSearchBar';
+import { generateArabAvatarUrl } from '../../lib/arab-data';
 
 interface Props {
   onNavigate: (page: Page, id?: string) => void;
@@ -15,47 +17,47 @@ const CATEGORIES = ['All', 'Technology', 'Design', 'Languages', 'Music', 'Fitnes
 
 const STATIC_EXPERTS: Profile[] = [
   {
-    id: '1', user_id: undefined, display_name: 'Maya Chen', username: 'maya_chen',
-    avatar_url: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-    bio: 'Full-stack developer with 8 years of experience. Passionate about React, TypeScript, and teaching others the joy of clean code.',
-    location: 'San Francisco, CA', video_verified: true,
+    id: '1', user_id: undefined, display_name: 'أحمد محمد', username: 'ahmad_mohammad',
+    avatar_url: generateArabAvatarUrl('أحمد محمد'),
+    bio: 'مهندس برمجيات بخبرة 8 سنوات. متخصص في React و TypeScript وتعليم الآخرين.',
+    location: 'Cairo, Egypt', video_verified: true,
     teaching_skills: ['React', 'TypeScript', 'Node.js', 'System Design'],
-    learning_skills: ['Spanish', 'Watercolor Painting', 'Guitar'],
+    learning_skills: ['Arabic Design', 'Watercolor Painting', 'Guitar'],
     rating: 4.95, review_count: 47, exchange_count: 23, response_rate: 98,
-    languages: ['English', 'Mandarin'], is_available: true, is_demo: true,
+    languages: ['Arabic', 'English'], is_available: true, is_demo: true,
     member_since: '', created_at: '',
   },
   {
-    id: '2', user_id: undefined, display_name: 'Carlos Rivera', username: 'carlos_rivera',
-    avatar_url: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
-    bio: 'UX designer and language tutor. I\'ve shipped products at top tech companies and speak 4 languages fluently.',
-    location: 'Barcelona, Spain', video_verified: true,
-    teaching_skills: ['Spanish', 'UX Design', 'Figma', 'Portuguese'],
+    id: '2', user_id: undefined, display_name: 'فاطمة علي', username: 'fatima_ali',
+    avatar_url: generateArabAvatarUrl('فاطمة علي'),
+    bio: 'مصممة UX وتدرس اللغات. عملت مع أفضل الشركات التقنية وتتحدث 4 لغات.',
+    location: 'Dubai, UAE', video_verified: true,
+    teaching_skills: ['UI/UX Design', 'Figma', 'Web Design', 'Arabic Design'],
     learning_skills: ['Python', 'Machine Learning', 'Piano'],
     rating: 4.88, review_count: 34, exchange_count: 18, response_rate: 100,
-    languages: ['Spanish', 'English', 'Portuguese'], is_available: true, is_demo: true,
+    languages: ['Arabic', 'English', 'French'], is_available: true, is_demo: true,
     member_since: '', created_at: '',
   },
   {
-    id: '3', user_id: undefined, display_name: 'Aisha Patel', username: 'aisha_patel',
-    avatar_url: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
-    bio: 'Yoga instructor & mindfulness coach with 10+ years. Also an accomplished home chef specializing in Indian cuisine.',
-    location: 'Mumbai, India', video_verified: true,
-    teaching_skills: ['Yoga', 'Meditation', 'Indian Cooking', 'Ayurveda'],
+    id: '3', user_id: undefined, display_name: 'محمود حسن', username: 'mahmoud_hassan',
+    avatar_url: generateArabAvatarUrl('محمود حسن'),
+    bio: 'مدرب اليوغا والتأمل بخبرة 10+ سنوات. طاهي متخصص في الطعام العربي.',
+    location: 'Amman, Jordan', video_verified: true,
+    teaching_skills: ['Yoga', 'Meditation', 'Arabic Cooking', 'Ayurveda'],
     learning_skills: ['Web Development', 'Video Editing', 'English Writing'],
     rating: 4.97, review_count: 62, exchange_count: 31, response_rate: 99,
-    languages: ['English', 'Hindi'], is_available: true, is_demo: true,
+    languages: ['Arabic', 'English'], is_available: true, is_demo: true,
     member_since: '', created_at: '',
   },
   {
-    id: '4', user_id: undefined, display_name: 'James Okafor', username: 'james_okafor',
-    avatar_url: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=400',
-    bio: 'Music producer and guitarist with 15 years in the industry. Produced tracks for major labels. Now giving back.',
-    location: 'Lagos, Nigeria', video_verified: true,
+    id: '4', user_id: undefined, display_name: 'نور إبراهيم', username: 'noor_ibrahim',
+    avatar_url: generateArabAvatarUrl('نور إبراهيم'),
+    bio: 'منتج موسيقى وعازف جيتار بخبرة 15 سنة. أنتج موسيقى لشركات عملاقة.',
+    location: 'Riyadh, Saudi Arabia', video_verified: true,
     teaching_skills: ['Guitar', 'Music Production', 'Ableton Live', 'Music Theory'],
     learning_skills: ['Graphic Design', 'French Language', 'Fitness Training'],
     rating: 4.92, review_count: 28, exchange_count: 15, response_rate: 97,
-    languages: ['English', 'Yoruba'], is_available: false, is_demo: true,
+    languages: ['Arabic', 'English'], is_available: false, is_demo: true,
     member_since: '', created_at: '',
   },
   {
@@ -157,27 +159,26 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-16">
-      <div className="bg-gradient-to-br from-slate-900 to-teal-900 py-14 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">Browse Experts</h1>
-          <p className="text-slate-300 text-lg mb-8">Find someone who teaches what you want — and wants what you teach.</p>
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+    <div className="min-h-screen bg-slate-50 pt-16 pb-20 md:pb-0">
+      <div className="bg-gradient-to-br from-slate-900 to-teal-900 py-12 md:py-14 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 md:mb-3 text-center">Browse Experts</h1>
+          <p className="text-slate-300 text-sm md:text-base lg:text-lg mb-6 md:mb-8 text-center">Find someone who teaches what you want — and wants what you teach.</p>
+          <div className="max-w-2xl mx-auto">
+            <SmartSearchBar
+              onSearch={(filters) => {
+                setSearch(filters.query);
+              }}
               placeholder="Search skills, names, or locations..."
-              className="w-full pl-12 pr-4 py-4 bg-white rounded-2xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 shadow-lg"
+              showAdvanced={false}
             />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 flex-1 mr-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 flex-1">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -202,6 +203,7 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
             Filters
           </button>
         </div>
+      </div>
 
         {showFilters && (
           <div className="bg-white border border-slate-100 rounded-2xl p-5 mb-6 flex flex-wrap gap-4">
@@ -251,7 +253,7 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
             <div className="text-slate-400 text-sm">Try different keywords or remove filters.</div>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">d-cols-4 gap-5">
             {displayExperts.map(expert => (
               <ExpertCard
                 key={expert.id}
