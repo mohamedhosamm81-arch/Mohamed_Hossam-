@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
+import { isSupabaseConfigured } from './lib/supabase';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
@@ -79,10 +82,39 @@ function AppContent() {
   );
 }
 
-export default function App() {
+function ConfigurationWarning() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <div className="min-h-screen flex items-center justify-center bg-yellow-50 p-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <AlertCircle className="w-6 h-6 text-yellow-600" />
+          <h1 className="text-xl font-bold text-yellow-600">Configuration Required</h1>
+        </div>
+        <p className="text-gray-700 mb-4">
+          Supabase environment variables are not configured. Please set the following in your deployment platform:
+        </p>
+        <ul className="bg-gray-100 p-3 rounded text-sm text-gray-600 mb-4 space-y-2">
+          <li><code className="bg-white px-2 py-1 rounded">VITE_SUPABASE_URL</code></li>
+          <li><code className="bg-white px-2 py-1 rounded">VITE_SUPABASE_ANON_KEY</code></li>
+        </ul>
+        <p className="text-xs text-gray-500">
+          See .env.example for more details.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  if (!isSupabaseConfigured) {
+    return <ConfigurationWarning />;
+  }
+
+  return (
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
