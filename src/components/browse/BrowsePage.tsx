@@ -203,7 +203,6 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
             Filters
           </button>
         </div>
-      </div>
 
         {showFilters && (
           <div className="bg-white border border-slate-100 rounded-2xl p-5 mb-6 flex flex-wrap gap-4">
@@ -253,7 +252,7 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
             <div className="text-slate-400 text-sm">Try different keywords or remove filters.</div>
           </div>
         ) : (
-         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">d-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {displayExperts.map(expert => (
               <ExpertCard
                 key={expert.id}
