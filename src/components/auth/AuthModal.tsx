@@ -34,7 +34,7 @@ export default function AuthModal({ mode, onClose, onSwitchMode }: Props) {
         else { setSuccess('Account created! Welcome to Mind2Mind.'); setTimeout(onClose, 1500); }
       } else {
         const { error } = await signIn(email, password);
-        if (error) setError('Invalid email or password. Please try again.');
+        if (error) setError(error.message);
         else onClose();
       }
     } finally {

@@ -10,7 +10,7 @@ import { Page } from '../types';
 
 interface Props {
   onNavigate: (page: Page, id?: string) => void;
-  onOpenAuth: (mode: 'signup') => void;
+  onOpenAuth: (mode: 'signin' | 'signup') => void;
 }
 
 export default function HomePage({ onNavigate, onOpenAuth }: Props) {

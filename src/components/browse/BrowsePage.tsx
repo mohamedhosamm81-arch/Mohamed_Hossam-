@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, Video, X } from 'lucide-react';
+import { SlidersHorizontal, Video, X, UserCog, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Profile, Page } from '../../types';
 import ExpertCard from './ExpertCard';
 import ExchangeModal from '../exchange/ExchangeModal';
+import ProfileEditModal from '../profile/ProfileEditModal';
+import DemoUploadModal from '../profile/DemoUploadModal';
 import { useAuth } from '../../context/AuthContext';
 import SmartSearchBar from '../search/SmartSearchBar';
 import { generateArabAvatarUrl } from '../../lib/arab-data';
@@ -115,6 +117,8 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
   const [availableOnly, setAvailableOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [exchangeTarget, setExchangeTarget] = useState<Profile | null>(null);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [showDemoUpload, setShowDemoUpload] = useState(false);
 
   useEffect(() => {
     supabase
@@ -173,6 +177,24 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
               showAdvanced={false}
             />
           </div>
+          {user && (
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <button
+                onClick={() => setShowProfileEdit(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-sm font-medium text-white transition-all"
+              >
+                <UserCog className="w-4 h-4" />
+                Create / Edit My Profile
+              </button>
+              <button
+                onClick={() => setShowDemoUpload(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-teal-500/80 hover:bg-teal-500 border border-teal-400/30 rounded-xl text-sm font-medium text-white transition-all"
+              >
+                <Upload className="w-4 h-4" />
+                Upload Demo
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -269,6 +291,25 @@ export default function BrowsePage({ onNavigate, onOpenAuth }: Props) {
         <ExchangeModal
           expert={exchangeTarget}
           onClose={() => setExchangeTarget(null)}
+        />
+      )}
+
+      {showProfileEdit && (
+        <ProfileEditModal
+          onClose={() => setShowProfileEdit(false)}
+          onSaved={() => {
+            // Refresh experts list
+            supabase.from('profiles').select('*').order('exchange_count', { ascending: false }).then(({ data }) => {
+              if (data && data.length > 0) setExperts(data as Profile[]);
+            });
+          }}
+        />
+      )}
+
+      {showDemoUpload && (
+        <DemoUploadModal
+          onClose={() => setShowDemoUpload(false)}
+          onUploaded={() => {}}
         />
       )}
     </div>

@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { isSupabaseConfigured } from './lib/supabase';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
+import NotificationToast from './components/layout/NotificationToast';
 import HomePage from './pages/HomePage';
 import BrowsePage from './components/browse/BrowsePage';
 import ProfilePage from './components/profile/ProfilePage';
 import MessagesPage from './components/messages/MessagesPage';
+import ExchangeRequestsPage from './pages/ExchangeRequestsPage';
 import AuthModal from './components/auth/AuthModal';
 import { Page } from './types';
 
@@ -59,6 +62,9 @@ function AppContent() {
         {currentPage === 'messages' && (
           <MessagesPage />
         )}
+        {currentPage === 'exchanges' && (
+          <ExchangeRequestsPage />
+        )}
       </main>
 
       {(currentPage === 'home') && <Footer onNavigate={handleNavigate} />}
@@ -70,6 +76,8 @@ function AppContent() {
           onOpenAuth={handleOpenAuth}
         />
       )}
+
+      <NotificationToast onNavigate={handleNavigate} />
 
       {authModal.open && (
         <AuthModal
@@ -113,7 +121,9 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <AppContent />
+        <NotificationProvider>
+          <AppContent />
+        </NotificationProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

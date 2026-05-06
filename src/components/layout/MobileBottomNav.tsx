@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, Briefcase, MessageCircle, User } from 'lucide-react';
+import { Home, Compass, ArrowLeftRight, MessageCircle, User } from 'lucide-react';
 import { Page } from '../../types';
 
 interface MobileBottomNavProps {
@@ -18,7 +18,7 @@ export default function MobileBottomNav({
   const navItems = [
     { label: 'Home', page: 'home' as Page, icon: Home },
     { label: 'Explore', page: 'browse' as Page, icon: Compass },
-    { label: 'Jobs', page: 'jobs' as Page, icon: Briefcase },
+    { label: 'Exchanges', page: 'exchanges' as Page, icon: ArrowLeftRight },
     { label: 'Messages', page: 'messages' as Page, icon: MessageCircle, badge: hasUnreadMessages },
     { label: 'Profile', page: 'profile' as Page, icon: User },
   ];

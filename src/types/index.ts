@@ -11,6 +11,8 @@ export interface Profile {
   verification_video_url?: string;
   teaching_skills: string[];
   learning_skills: string[];
+  skills_to_teach?: string[];
+  skills_to_learn?: string[];
   rating: number;
   review_count: number;
   exchange_count: number;
@@ -20,7 +22,23 @@ export interface Profile {
   is_demo: boolean;
   member_since: string;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+}
+
+export interface Demo {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  file_url: string;
+  file_type: 'video' | 'pdf';
+  visibility: 'public' | 'custom';
+  allowed_users: string[];
+  skill_name: string;
+  created_at: string;
+  updated_at?: string;
+  // joined
+  profiles?: Profile;
 }
 
 export interface KnowledgeDemo {
@@ -39,6 +57,22 @@ export interface KnowledgeDemo {
   is_published: boolean;
   created_at: string;
   profile?: Profile;
+}
+
+export interface Exchange {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  skill_requested: string;
+  skill_offered: string;
+  message: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  rejection_reason: string;
+  created_at: string;
+  updated_at?: string;
+  // joined profiles
+  sender_profile?: Profile;
+  receiver_profile?: Profile;
 }
 
 export interface SkillCategory {
@@ -97,10 +131,8 @@ export interface Conversation {
 export interface Notification {
   id: string;
   user_id: string;
-  type: 'exchange_request' | 'exchange_accepted' | 'exchange_declined' | 'review_received' | 'message' | 'milestone' | 'job_posted' | 'job_completed';
-  title: string;
   message: string;
-  related_id?: string;
+  exchange_id?: string;
   is_read: boolean;
   created_at: string;
 }
@@ -215,4 +247,4 @@ export interface AdminStats {
   verified_users_count: number;
 }
 
-export type Page = 'home' | 'browse' | 'profile' | 'messages' | 'jobs';
+export type Page = 'home' | 'browse' | 'profile' | 'messages' | 'jobs' | 'exchanges';
