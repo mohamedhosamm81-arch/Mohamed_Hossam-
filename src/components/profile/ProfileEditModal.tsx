@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Camera, Save, Loader2 } from 'lucide-react';
+import { X, Camera, Save, Loader2, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
-import { Profile } from '../../types';
+import { Profile, ProfileCategory } from '../../types';
+import { getProfileCategories } from '../../lib/db-helpers';
 import Button from '../ui/Button';
 
 interface Props {
@@ -25,6 +26,7 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
     languages: [],
     is_available: true,
   });
+  const [profileCategories, setProfileCategories] = useState<ProfileCategory[]>([]);
   const [teachInput, setTeachInput] = useState('');
   const [learnInput, setLearnInput] = useState('');
   const [langInput, setLangInput] = useState('');
@@ -40,10 +42,14 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (data) {
           setProfile(data as Profile);
           setAvatarPreview(data.avatar_url || '');
+          
+          // Fetch the profile's expert categories
+          const categories = await getProfileCategories(data.id);
+          setProfileCategories(categories);
         } else {
           setProfile(prev => ({
             ...prev,
@@ -129,11 +135,21 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
           .update(upsertData)
           .eq('user_id', user.id);
         if (updateErr) throw updateErr;
+        
+        // Fetch updated categories
+        const categories = await getProfileCategories(existing.id);
+        setProfileCategories(categories);
       } else {
-        const { error: insertErr } = await supabase
+        const { data: insertData, error: insertErr } = await supabase
           .from('profiles')
-          .insert(upsertData);
+          .insert(upsertData)
+          .select()
+          .single();
         if (insertErr) throw insertErr;
+        
+        // Fetch new categories
+        const categories = await getProfileCategories(insertData.id);
+        setProfileCategories(categories);
       }
 
       setSuccess('Profile saved successfully!');
@@ -335,6 +351,30 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
               ))}
             </div>
           </div>
+
+          {/* Expert Categories */}
+          {profileCategories.length > 0 && (
+            <div className="bg-gradient-to-br from-blue-50 to-teal-50 border border-teal-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle2 className="w-5 h-5 text-teal-600" />
+                <h3 className="font-semibold text-slate-800">Expert Categories</h3>
+              </div>
+              <p className="text-xs text-slate-600 mb-3">
+                Based on your teaching skills, you've been added to these expert groups:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {profileCategories.map((cat) => (
+                  <div
+                    key={cat.category_id}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-teal-200 rounded-lg text-sm font-medium text-teal-700 shadow-sm"
+                  >
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.category_color }} />
+                    {cat.category_name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Availability */}
           <div className="flex items-center gap-3">

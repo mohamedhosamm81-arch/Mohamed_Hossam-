@@ -84,6 +84,14 @@ export interface SkillCategory {
   created_at?: string;
 }
 
+export interface ProfileCategory {
+  category_id: string;
+  category_name: string;
+  category_icon: string;
+  category_color: string;
+  is_expert: boolean;
+}
+
 export interface ExchangeRequest {
   id: string;
   requester_profile_id: string;

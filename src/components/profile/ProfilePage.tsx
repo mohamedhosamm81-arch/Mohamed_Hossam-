@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Star, MapPin, Video, Repeat, Globe, Clock, Play, Eye, Heart, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Star, MapPin, Video, Repeat, Globe, Clock, Play, Eye, Heart, ArrowLeft, MessageCircle, Edit } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Profile, KnowledgeDemo, Page } from '../../types';
+import { Profile, KnowledgeDemo, Page, Review } from '../../types';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import ExchangeModal from '../exchange/ExchangeModal';
+import ProfileEditModal from './ProfileEditModal';
 import { useAuth } from '../../context/AuthContext';
 
 interface Props {
@@ -69,25 +70,82 @@ export default function ProfilePage({ profileId, onNavigate, onOpenAuth }: Props
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [demos, setDemos] = useState<KnowledgeDemo[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'demos' | 'reviews' | 'about'>('demos');
   const [exchangeOpen, setExchangeOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
 
   useEffect(() => {
-    if (profileId) {
-      Promise.all([
-        supabase.from('profiles').select('*').eq('id', profileId).maybeSingle(),
-        supabase.from('knowledge_demos').select('*').eq('profile_id', profileId).eq('is_published', true),
-      ]).then(([{ data: p }, { data: d }]) => {
-        if (p) setProfile(p as Profile);
-        else setProfile(STATIC_PROFILE);
-        if (d && d.length > 0) setDemos(d as KnowledgeDemo[]);
-        else setDemos(STATIC_DEMOS);
-      });
-    } else {
-      setProfile(STATIC_PROFILE);
-      setDemos(STATIC_DEMOS);
-    }
-  }, [profileId]);
+    const loadProfile = async () => {
+      try {
+        let idToFetch = profileId;
+        
+        // If no profileId provided and user is logged in, fetch their own profile
+        if (!profileId && user) {
+          const { data: userProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (userProfile) {
+            idToFetch = userProfile.id;
+          }
+        }
+        
+        // Fetch profile, demos, and reviews
+        if (idToFetch) {
+          const [{ data: p }, { data: d }, { data: r }] = await Promise.all([
+            supabase.from('profiles').select('*').eq('id', idToFetch).maybeSingle(),
+            supabase.from('knowledge_demos').select('*').eq('profile_id', idToFetch).eq('is_published', true),
+            supabase.from('reviews')
+              .select(`
+                id, exchange_id, reviewer_id, rating, comment, created_at,
+                profiles:reviewer_id(display_name, avatar_url)
+              `)
+              .eq('reviewee_profile_id', idToFetch)
+              .order('created_at', { ascending: false }),
+          ]);
+          
+          if (p) {
+            setProfile(p as Profile);
+            // Check if this is the current user's profile
+            setIsOwnProfile(user ? p.user_id === user.id : false);
+            
+            // For own profile, don't show static data
+            if (user && p.user_id === user.id) {
+              setDemos(d || []);
+              setReviews(r || []);
+            } else {
+              // For other profiles, show their data or static fallback
+              setDemos(d && d.length > 0 ? d : []);
+              setReviews(r || []);
+            }
+          } else {
+            setProfile(STATIC_PROFILE);
+            setDemos(STATIC_DEMOS);
+            setReviews([]);
+            setIsOwnProfile(false);
+          }
+        } else {
+          // No profileId and not logged in, show demo
+          setProfile(STATIC_PROFILE);
+          setDemos(STATIC_DEMOS);
+          setReviews([]);
+          setIsOwnProfile(false);
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        setProfile(STATIC_PROFILE);
+        setDemos(STATIC_DEMOS);
+        setReviews([]);
+        setIsOwnProfile(false);
+      }
+    };
+    
+    loadProfile();
+  }, [profileId, user]);
 
   const handleExchange = () => {
     if (!user) { onOpenAuth('signup'); return; }
@@ -166,13 +224,17 @@ export default function ProfilePage({ profileId, onNavigate, onOpenAuth }: Props
                 </div>
 
                 <div className="flex gap-3">
-                  {profile.is_available && (
+                  {isOwnProfile ? (
+                    <Button onClick={() => setEditModalOpen(true)} size="md" variant="outline">
+                      <Edit className="w-4 h-4" />
+                      Edit Profile
+                    </Button>
+                  ) : profile.is_available ? (
                     <Button onClick={handleExchange} size="md">
                       <MessageCircle className="w-4 h-4" />
                       Propose Exchange
                     </Button>
-                  )}
-                  {!profile.is_available && (
+                  ) : (
                     <div className="px-4 py-2.5 bg-slate-100 text-slate-500 rounded-xl text-sm font-medium">
                       Currently Busy
                     </div>
@@ -215,7 +277,8 @@ export default function ProfilePage({ profileId, onNavigate, onOpenAuth }: Props
 
         {activeTab === 'demos' && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-            {(demos.length > 0 ? demos : STATIC_DEMOS).map(demo => (
+            {demos.length > 0 ? (
+              demos.map(demo => (
               <div key={demo.id} className="group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-md transition-all cursor-pointer">
                 <div className="relative aspect-video bg-slate-100">
                   <img src={demo.thumbnail_url} alt={demo.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -241,33 +304,65 @@ export default function ProfilePage({ profileId, onNavigate, onOpenAuth }: Props
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+            ) : isOwnProfile ? (
+              <div className="col-span-full text-center py-12">
+                <Play className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">You haven't uploaded any knowledge demos yet.</p>
+                <p className="text-slate-400 text-sm">Share your teaching style with demos!</p>
+              </div>
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Play className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">No knowledge demos available.</p>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'reviews' && (
           <div className="space-y-4 mb-12">
-            {REVIEWS.map((review, i) => (
-              <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5">
-                <div className="flex items-start gap-4">
-                  <img src={review.avatar} alt={review.name} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <span className="font-semibold text-slate-900 text-sm">{review.name}</span>
-                        <span className="text-slate-400 text-xs ml-2">{review.date}</span>
-                      </div>
-                      <div className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map(n => (
-                          <Star key={n} className={`w-3.5 h-3.5 ${n <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
-                        ))}
+            {reviews.length > 0 ? (
+              reviews.map((review, i) => {
+                const reviewerProfile = review.profiles;
+                return (
+                  <div key={review.id} className="bg-white border border-slate-100 rounded-2xl p-5">
+                    <div className="flex items-start gap-4">
+                      <img 
+                        src={reviewerProfile?.avatar_url || 'https://via.placeholder.com/40'} 
+                        alt={reviewerProfile?.display_name || 'Reviewer'} 
+                        className="w-10 h-10 rounded-xl object-cover flex-shrink-0" 
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <span className="font-semibold text-slate-900 text-sm">{reviewerProfile?.display_name || 'Anonymous'}</span>
+                            <span className="text-slate-400 text-xs ml-2">{new Date(review.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map(n => (
+                              <Star key={n} className={`w-3.5 h-3.5 ${n <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-slate-600 text-sm leading-relaxed">{review.comment}</p>
                       </div>
                     </div>
-                    <p className="text-slate-600 text-sm leading-relaxed">{review.text}</p>
                   </div>
-                </div>
+                );
+              })
+            ) : isOwnProfile ? (
+              <div className="text-center py-12">
+                <Star className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">You don't have any reviews yet.</p>
+                <p className="text-slate-400 text-sm">Complete exchanges to earn reviews!</p>
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-12">
+                <Star className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">No reviews available yet.</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -311,6 +406,27 @@ export default function ProfilePage({ profileId, onNavigate, onOpenAuth }: Props
 
       {exchangeOpen && profile && (
         <ExchangeModal expert={profile} onClose={() => setExchangeOpen(false)} />
+      )}
+
+      {editModalOpen && (
+        <ProfileEditModal
+          onClose={() => setEditModalOpen(false)}
+          onSaved={() => {
+            setEditModalOpen(false);
+            // Reload the profile
+            if (profile) {
+              const reloadProfile = async () => {
+                const { data: p } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', profile.id)
+                  .maybeSingle();
+                if (p) setProfile(p as Profile);
+              };
+              reloadProfile();
+            }
+          }}
+        />
       )}
     </div>
   );

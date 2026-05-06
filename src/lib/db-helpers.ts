@@ -417,3 +417,52 @@ export function calculateResponseTime(createdAt: string, respondedAt: string): n
   const responded = new Date(respondedAt).getTime();
   return Math.floor((responded - created) / 3600000); // hours
 }
+
+// ============================================================================
+// PROFILE CATEGORY OPERATIONS (AUTO-CATEGORIZATION)
+// ============================================================================
+
+export interface ProfileCategory {
+  category_id: string;
+  category_name: string;
+  category_icon: string;
+  category_color: string;
+  is_expert: boolean;
+}
+
+export async function getProfileCategories(profileId: string): Promise<ProfileCategory[]> {
+  const { data, error } = await supabase.rpc('get_profile_categories', {
+    profile_id: profileId
+  });
+
+  if (error) {
+    console.error('Error fetching profile categories:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+export async function autoCategorizeProfile(profileId: string): Promise<void> {
+  const { error } = await supabase.rpc('auto_categorize_profile', {
+    profile_id: profileId
+  });
+
+  if (error) {
+    console.error('Error auto-categorizing profile:', error);
+  }
+}
+
+export async function getSkillCategories() {
+  const { data, error } = await supabase
+    .from('skill_categories')
+    .select('*')
+    .order('name');
+
+  if (error) {
+    console.error('Error fetching skill categories:', error);
+    return [];
+  }
+
+  return data || [];
+}
