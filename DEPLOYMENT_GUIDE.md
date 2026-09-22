@@ -212,6 +212,15 @@ The manager console includes a separate **SAS4 API Connector** editor. It is int
 
 Before enabling live runs, reauthorize the n8n connector, identify the exact SAS4 workflow ID, and expose only a narrow server-side action such as `POST /api/manager/sas4/run`. Never place the n8n API key in `VITE_*` variables or browser code. The UI currently reports the connection as pending until that server-side contract is configured.
 
+The repository now includes `supabase/functions/sas4-run/index.ts`. Deploy it with the Supabase CLI, then configure the secret on the Edge Function environment:
+
+```bash
+supabase functions deploy sas4-run
+supabase secrets set SAS4_N8N_WEBHOOK_URL=https://your-n8n-host/webhook/your-sas4-webhook
+```
+
+The n8n workflow should validate the incoming `source`, `workflow`, and `requested_by` fields, then perform the SAS4 operation. Keep the webhook URL private and do not put the n8n API key in the frontend.
+
 ---
 
 ## Support
