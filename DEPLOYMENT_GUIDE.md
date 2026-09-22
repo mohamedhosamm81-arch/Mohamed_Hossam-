@@ -206,6 +206,12 @@ The manager console is available at the `manager` route and is intentionally gat
 
 The current console is read-only and clearly labels its preview metrics until an authorized Supabase admin RPC is available. Do not connect destructive moderation actions directly from the browser. Add a `SECURITY DEFINER` reporting function and manager-only RLS policies, then replace the preview data source with that RPC and verify the policies using a non-manager account.
 
+### SAS4 Workflow Integration
+
+The manager console includes a separate **SAS4 API Connector** editor. It is intentionally not connected to, named after, or coupled with any PFC/DFC workflow. The editor controls the manager-facing label, input mapping, and enabled state; the actual run must be proxied through a secured server-side endpoint or Supabase Edge Function.
+
+Before enabling live runs, reauthorize the n8n connector, identify the exact SAS4 workflow ID, and expose only a narrow server-side action such as `POST /api/manager/sas4/run`. Never place the n8n API key in `VITE_*` variables or browser code. The UI currently reports the connection as pending until that server-side contract is configured.
+
 ---
 
 ## Support
