@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Send, Search, MoreVertical, Phone, Video, Info } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 
 interface Message {
   id: string;
@@ -24,7 +23,6 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
-  const { user } = useAuth();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');

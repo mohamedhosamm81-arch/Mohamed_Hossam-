@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Star, MapPin, Video, Repeat, Globe, Clock, Play, Eye, Heart, ArrowLeft, MessageCircle, Edit } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Profile, KnowledgeDemo, Page, Review } from '../../types';
+import { Profile, KnowledgeDemo, Page } from '../../types';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import ExchangeModal from '../exchange/ExchangeModal';
@@ -47,12 +47,6 @@ const STATIC_DEMOS: KnowledgeDemo[] = [
     video_url: '', thumbnail_url: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=800',
     skill_name: 'System Design', category: 'Technology', duration_seconds: 1520, views: 4100, likes: 378, is_published: true, created_at: '',
   },
-];
-
-const REVIEWS = [
-  { name: 'Carlos R.', avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100', rating: 5, text: 'Maya is an exceptional teacher. She explained React hooks in a way that finally made sense to me. I taught her Spanish and she was equally committed.', date: '2 weeks ago' },
-  { name: 'Sophie D.', avatar: 'https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=100', rating: 5, text: 'The exchange was perfect. I learned TypeScript basics that I\'d been struggling with for months, and she appreciated my cooking lessons.', date: '1 month ago' },
-  { name: 'Kenji T.', avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100', rating: 5, text: 'Highly responsive, patient, and incredibly knowledgeable. Genuinely the best exchange I\'ve had on Mind2Mind.', date: '2 months ago' },
 ];
 
 function formatDuration(seconds: number) {
@@ -323,7 +317,7 @@ export default function ProfilePage({ profileId, onNavigate, onOpenAuth }: Props
         {activeTab === 'reviews' && (
           <div className="space-y-4 mb-12">
             {reviews.length > 0 ? (
-              reviews.map((review, i) => {
+              reviews.map((review) => {
                 const reviewerProfile = review.profiles;
                 return (
                   <div key={review.id} className="bg-white border border-slate-100 rounded-2xl p-5">

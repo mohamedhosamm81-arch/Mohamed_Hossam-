@@ -255,4 +255,4 @@ export interface AdminStats {
   verified_users_count: number;
 }
 
-export type Page = 'home' | 'browse' | 'profile' | 'messages' | 'jobs' | 'exchanges';
+export type Page = 'home' | 'browse' | 'profile' | 'messages' | 'jobs' | 'exchanges' | 'manager';

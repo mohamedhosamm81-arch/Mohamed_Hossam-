@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Brain, Menu, X, ChevronDown } from 'lucide-react';
 import Button from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { Page } from '../../types';
 import NotificationBell from './NotificationBell';
+
+function hasManagerRole(user: { app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> } | null) {
+  const roles = [user?.app_metadata?.role, user?.user_metadata?.role];
+  return roles.includes('manager') || roles.includes('admin');
+}
 
 interface HeaderProps {
   currentPage: Page;
@@ -94,6 +99,12 @@ export default function Header({ currentPage, onNavigate, onOpenAuth }: HeaderPr
                       >
                         My Profile
                       </button>
+                      {hasManagerRole(user) && <button
+                        onClick={() => { onNavigate('manager'); setProfileMenuOpen(false); }}
+                        className="w-full text-left px-4 py-2 text-sm font-semibold text-teal-700 hover:bg-teal-50"
+                      >
+                        Manager Console
+                      </button>}
                       <button
                         onClick={() => { onNavigate('exchanges'); setProfileMenuOpen(false); }}
                         className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"

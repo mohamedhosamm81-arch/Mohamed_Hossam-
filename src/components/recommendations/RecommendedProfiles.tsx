@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Zap, ArrowRight, Star } from 'lucide-react';
 import { Profile, Page } from '../../types';
 import { RecommendationEngine } from '../../lib/recommendation-engine';
@@ -17,7 +17,6 @@ export default function RecommendedProfiles({
   userProfile,
   allProfiles,
   onNavigate,
-  onOpenAuth,
   title = 'Recommended for You',
   limit = 4,
 }: RecommendedProfilesProps) {
@@ -123,7 +122,7 @@ export default function RecommendedProfiles({
                       Teaches
                     </div>
                     <div className="flex flex-wrap gap-1">
-                      {profile.teaching_skills.slice(0, 2).map((skill, j) => (
+                      {profile.teaching_skills.slice(0, 2).map((skill: string, j: number) => (
                         <span
                           key={j}
                           className="inline-block bg-teal-100 text-teal-700 text-xs font-medium px-2 py-1 rounded-full"

@@ -186,6 +186,9 @@ npm run dev
 - [ ] Environment variables set in Vercel/Railway
 - [ ] Deployment successful and app is accessible
 - [ ] Tested core features (auth, browse, profile, messages)
+- [ ] Set `app_metadata.role` to `manager` or `admin` for approved manager accounts only
+- [ ] Add Supabase RLS policies/RPCs for manager reporting and moderation before enabling live admin writes
+- [ ] Confirm the manager console shows live data rather than preview data after the admin RPC is deployed
 
 ---
 
@@ -196,6 +199,12 @@ npm run dev
 3. **Enable real-time** - Ensure Realtime is enabled in Supabase
 4. **Add custom domain** - Configure custom domain in Vercel/Railway
 5. **Set up monitoring** - Enable error tracking and analytics
+
+### Manager Console Setup
+
+The manager console is available at the `manager` route and is intentionally gated by the authenticated user's Supabase metadata. The UI accepts either `app_metadata.role = manager` or `app_metadata.role = admin` (the same values are also recognized in `user_metadata` for development). In production, prefer `app_metadata`, because users cannot safely edit it from the client.
+
+The current console is read-only and clearly labels its preview metrics until an authorized Supabase admin RPC is available. Do not connect destructive moderation actions directly from the browser. Add a `SECURITY DEFINER` reporting function and manager-only RLS policies, then replace the preview data source with that RPC and verify the policies using a non-manager account.
 
 ---
 

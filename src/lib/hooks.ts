@@ -456,7 +456,7 @@ export function useRecommendedExperts(skillName: string, limit: number = 10) {
 
 export function useSearchProfiles(
   query: string,
-  category?: string,
+  _category?: string,
   verifyOnly: boolean = false,
   availableOnly: boolean = false,
   limit: number = 20

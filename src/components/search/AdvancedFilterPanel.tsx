@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, ChevronDown } from 'lucide-react';
-import { skillCategories } from '../../lib/arab-data';
 
 interface FilterPanelProps {
   onClose?: () => void;

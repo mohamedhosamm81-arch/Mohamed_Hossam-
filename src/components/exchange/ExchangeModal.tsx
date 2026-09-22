@@ -37,13 +37,17 @@ export default function ExchangeModal({ expert, onClose }: Props) {
       if (exchangeErr) throw exchangeErr;
 
       // Also try the legacy table (ignore errors if it doesn't exist)
-      await supabase.from('exchange_requests').insert({
-        requester_id: user.id,
-        provider_id: expert.user_id,
-        requester_skill: mySkill.trim(),
-        provider_skill: theirSkill.trim(),
-        message: message.trim(),
-      }).catch(() => {});
+      try {
+        await supabase.from('exchange_requests').insert({
+          requester_id: user.id,
+          provider_id: expert.user_id,
+          requester_skill: mySkill.trim(),
+          provider_skill: theirSkill.trim(),
+          message: message.trim(),
+        });
+      } catch {
+        // The legacy table is optional; the primary exchange record is authoritative.
+      }
 
       // Create notification for the receiver
       if (expert.user_id && exchangeData) {
